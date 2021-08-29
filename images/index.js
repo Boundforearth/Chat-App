@@ -1,0 +1,1 @@
+export const startBackground = require('./Background-Image.png'); 
