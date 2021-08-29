@@ -17,6 +17,7 @@ export default class Start extends Component {
           <View style={styles.titleBox}> 
             <Text  style={styles.title}>Chat App</Text>
           </View>
+          {/* Use this component to prevent keyboard from covering up input box*/}
           <KeyboardAvoidingView 
             style={styles.userInfo}
             behavior="padding"

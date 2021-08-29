@@ -5,6 +5,7 @@ import { startBackground } from "../images/index"
 export default class Start extends Component {
 
   componentDidMount() {
+    //Use to set the name at top of app page
     const name = this.props.route.params.name;
     this.props.navigation.setOptions({ title: name });
   }
