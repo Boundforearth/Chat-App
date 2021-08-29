@@ -1,6 +1,8 @@
+//./components/Start.js
 import React, { Component } from "react";
 import { View, TouchableOpacity, Text,TextInput, StyleSheet, ImageBackground, KeyboardAvoidingView, ScrollView } from "react-native";
 import { startBackground } from "../images/index"
+
 
 export default class Start extends Component {
   constructor(props) {
@@ -10,7 +12,11 @@ export default class Start extends Component {
       chatColor: "#090C08",
     }
   }
+
   render() {
+    //colors to be mapped to Touchable Opacity.  Update these to update colors
+    const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"]
+
     return(
       <View style={styles.container}>
         <ImageBackground source={startBackground} resizeMode="cover" style={styles.image}>
@@ -23,6 +29,9 @@ export default class Start extends Component {
             behavior="padding"
           >
               <TextInput 
+                accessible={true}
+                accessibilityLabel="Your Name"
+                accessibilityHint="Name that will be used in the chat"
                 style={styles.userNameInput}
                 placeholderTextColor="#757083"
                 placeholder="Your Name"
@@ -32,25 +41,24 @@ export default class Start extends Component {
               <View style={styles.colorSelection}>
                 <Text style={styles.chooseColorText}>Choose Background Color:</Text>
                 <View style={styles.buttonDisplay}>
-                  <TouchableOpacity
-                    style={styles.buttonColor1}
-                    onPress={() => this.setState({chatColor: "#090C08"})}
-                  />
-                  <TouchableOpacity
-                    style={styles.buttonColor2}
-                    onPress={() => this.setState({chatColor: "#474056"})}
-                  />
-                  <TouchableOpacity
-                    style={styles.buttonColor3}
-                    onPress={() => this.setState({chatColor: "#8A95A5"})}
-                  />
-                  <TouchableOpacity
-                    style={styles.buttonColor4}
-                    onPress={() => this.setState({chatColor: "#B9C6AE"})}
-                  />
+                  {/* maps each color to its own button from the colors array*/}
+                  {colors.map((color) => (
+                    <TouchableOpacity 
+                      key={color}
+                      accessible={true}
+                      accessibilityLabel="Chat Background Color"
+                      accessibilityHint="Selects chat background color"
+                      accessibilityRole="radio"
+                      style={[styles.buttonColor, this.state.chatColor === color ? {borderColor: "#ff7dba"}: {borderColor: "white"}, {backgroundColor: color}]}
+                      onPress={() => this.setState({chatColor: color})}
+                    />
+                  ))}
                 </View>
               </View>
               <TouchableOpacity
+                accessible={true}
+                accessibilityLabel="To Chat"
+                accessibilityHint="Navigates to the chat page"
                 style={styles.button}
                 onPress={() => this.props.navigation.navigate("Chat", { 
                   name: this.state.name,
@@ -76,7 +84,7 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   titleBox: {
-    flex: 53,
+    flex: 60,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -86,24 +94,25 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   colorSelection: {
+    marginTop: "3%",
     width: "88%",
   },
   userInfo: {
-    flex: 47,
+    flex: 40,
     display: "flex",
     width: "88%",
     margin: "6%",
     borderRadius: 10,
     backgroundColor: "#fff",
     flexDirection: "column",
-    justifyContent: "space-around",
     alignItems: "center",
   },
   userNameInput: {
     padding: 5,
+    marginTop: "3%",
     borderWidth: 1,
     width: "88%",
-    height: 60,
+    height: 50,
     borderColor: "gray",
     borderRadius: 2,
   },
@@ -124,34 +133,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     marginRight: "20%",
   },
-  buttonColor1: {
+  buttonColor: {
     height: 50,
     width: 50,
     borderRadius: 25,
-    backgroundColor: "#090C08",
-  },
-  buttonColor2: {
-    height: 50,
-    width: 50,
-    borderRadius: 25,
-    backgroundColor: "#474056",
-  },
-  buttonColor3: {
-    height: 50,
-    width: 50,
-    borderRadius: 25,
-    backgroundColor: "#8A95A5",
-  },
-  buttonColor4: {
-    height: 50,
-    width: 50,
-    borderRadius: 25,
-    backgroundColor: "#B9C6AE",
+    borderWidth: 3,
   },
   button: {
+    marginTop: "3%",
     backgroundColor: "#757083",
     borderRadius: 5,
-    height: 60,
+    height: 50,
     width: "88%",
     display: "flex",
     justifyContent: "center",
