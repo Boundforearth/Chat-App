@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { View, Button, Text,TextInput, StyleSheet } from "react-native";
-import { startBackground } from "../images/index"
+import { GiftedChat } from "react-native-gifted-chat";
 
-export default class Start extends Component {
+export default class Chat extends Component {
 
   componentDidMount() {
     //Use to set the name at top of app page
