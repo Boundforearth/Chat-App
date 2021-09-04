@@ -4,7 +4,9 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Start from "./components/Start";
 import Chat from "./components/Chat";
-import { StyleSheet } from "react-native"
+import { StyleSheet, LogBox } from "react-native"
+
+LogBox.ignoreLogs(['Setting a timer']);
 
 const Stack = createStackNavigator();
 
