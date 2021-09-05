@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { KeyboardAvoidingView, Platform, View, StyleSheet } from "react-native";
 import { Bubble, Time, SystemMessage, GiftedChat } from "react-native-gifted-chat";
 
+//use firebase
 const firebase = require("firebase");
 require("firebase/firestore");
 
@@ -18,6 +19,7 @@ export default class Chat extends Component {
       }
     }
 
+    //Provided firebase config data
     const firebaseConfig = {
       apiKey: "AIzaSyAfp1g7vqlK__-uwWo13Uxuo6Z6Xps3vj4",
       authDomain: "chat-app-84099.firebaseapp.com",
@@ -55,7 +57,7 @@ export default class Chat extends Component {
           name,
         }
       });
-      // create a reference to the active user's documents (shopping lists)
+      // create a reference to the active user
       this.referenceChatUser = firebase
         .firestore()
         .collection('shoppinglists')
@@ -87,6 +89,7 @@ export default class Chat extends Component {
     });
   }
 
+  //function used to add a message to firebase
   addMessages() {
     const message = this.state.messages[0];
     this.referenceChatMessages.add({
