@@ -35,7 +35,6 @@ export default class Chat extends Component {
         };
 
     this.referenceChatMessages = firebase.firestore().collection("messages");
-    this.referenceChatUser = null;
   }
   componentDidMount() {
     this.referenceChatMessages = firebase.firestore().collection("messages");
@@ -57,11 +56,7 @@ export default class Chat extends Component {
           name,
         }
       });
-      // create a reference to the active user
-      this.referenceChatUser = firebase
-        .firestore()
-        .collection('shoppinglists')
-        .where("uid", "==", this.state.uid);
+
 
       this.unsubscribe = this.referenceChatMessages
         .orderBy("createdAt", "desc")
