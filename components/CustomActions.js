@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
-import * as Permissions from 'expo-permissions';
+import { View, StyleSheet, TouchableOpacity, Text } from "react-native";;
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import firebase from "firebase";
@@ -10,20 +9,22 @@ import { firestore } from "firebase";
 export default class CustomActions extends Component {
 
   pickImage = async () => {
-    const {status} = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if(status === "granted") {
       let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "Images",
+        mediaTypes: ImagePicker.MediaTypeOptions.Images
       }).catch(error => console.log(error));
+      
       if(!result.cancelled) {
         const imageUrl = await this.uploadImageFetch(result.uri);
         this.props.onSend({image: imageUrl});
       }
     }
+
   }
 
   takePhoto = async() => {
-    const {status} = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.CAMERA);
+    const {status} = await ImagePicker.requestCameraPermissionsAsync();
     if(status === "granted") {
       let result = await ImagePicker.launchCameraAsync().catch(error => console.log(error));
 
@@ -35,10 +36,12 @@ export default class CustomActions extends Component {
   }
 
   getLocation = async() => {
-    const {status} = await Permissions.askAsync(Permissions.LOCATION);
+    const {status} = await Location.requestForegroundPermissionsAsync();
+    console.log(status);
     if(status === "granted") {
-      let result = await Location.getCurrentPositionAsync({}).catch(error => console.log(error));
+      let result = await Location.getCurrentPositionAsync({  accuracy:Location.Accuracy.High }).catch(error => console.log(error));
       if (result) {
+        console.log(result)
         this.props.onSend({
           location: {
             longitude: result.coords.longitude,
@@ -46,6 +49,8 @@ export default class CustomActions extends Component {
           },
         });
       }
+    } else{
+      console.log("not granted?")
     }
   }
 
