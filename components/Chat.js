@@ -4,6 +4,8 @@ import { KeyboardAvoidingView, Platform, View, StyleSheet } from "react-native";
 import { Bubble, Time, SystemMessage, GiftedChat, InputToolbar } from "react-native-gifted-chat";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from "@react-native-community/netinfo";
+import CustomActions from "./CustomActions"
+import MapView from 'react-native-maps';
 
 //use firebase
 const firebase = require("firebase");
@@ -16,6 +18,7 @@ export default class Chat extends Component {
       messages: [],
       uid: "",
       isConnected: false,
+      image: null,
     }
 
     //Provided firebase config data
@@ -31,8 +34,6 @@ export default class Chat extends Component {
       if (!firebase.apps.length){
         firebase.initializeApp(firebaseConfig);
         };
-
-      
       this.referenceChatMessages = firebase.firestore().collection("messages");
   }
 
@@ -125,7 +126,9 @@ export default class Chat extends Component {
         user: {
           _id: data.user._id,
           name: data.user.name,
-        }
+        },
+        image: data.image || null,
+        location: data.location || null,
       });
     });
     this.setState({
@@ -142,8 +145,10 @@ export default class Chat extends Component {
       createdAt: message.createdAt,
       user: {
         _id: this.state.uid,
-        name: message.user.name
-      }
+        name: message.user.name,
+      },
+      image: message.image || null,
+      location: message.location || null,
     })
   }
  
@@ -217,6 +222,33 @@ export default class Chat extends Component {
       )
     };
 
+    renderCustomView = props => {
+      const { currentMessage } = props;
+      if (currentMessage.location) {
+        return (
+          <MapView
+            style={{
+              width: 150,
+              height: 100,
+              borderRadius: 13,
+              margin: 3
+            }}
+            region={{
+              latitude: currentMessage.location.latitude,
+              longitude: currentMessage.location.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+          />
+        )
+      }
+      return null;
+    }
+
+    renderCustomActions = (props) => {
+      return <CustomActions {...props} />
+    };
+
   render() {
 
     const {chatColor, name} = this.props.route.params
@@ -231,6 +263,8 @@ export default class Chat extends Component {
           renderTime={this.renderTime.bind(this)}
           renderBubble={this.renderBubble.bind(this)}
           renderInputToolbar={this.renderInputToolbar.bind(this)}
+          renderCustomView={this.renderCustomView.bind(this)}
+          renderActions={this.renderCustomActions.bind(this)}
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
           user={{
