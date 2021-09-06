@@ -1,7 +1,9 @@
 // ./components/Chat.js
 import React, { Component } from "react";
 import { KeyboardAvoidingView, Platform, View, StyleSheet } from "react-native";
-import { Bubble, Time, SystemMessage, GiftedChat } from "react-native-gifted-chat";
+import { Bubble, Time, SystemMessage, GiftedChat, InputToolbar } from "react-native-gifted-chat";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from "@react-native-community/netinfo";
 
 //use firebase
 const firebase = require("firebase");
@@ -13,6 +15,7 @@ export default class Chat extends Component {
     this.state = {
       messages: [],
       uid: "",
+      isConnected: false,
     }
 
     //Provided firebase config data
@@ -25,35 +28,89 @@ export default class Chat extends Component {
       appId: "1:1063381477251:web:5f3e79d4855b1275d278b6",
       measurementId: "G-PTZ1ZS86YY"
     };
-
       if (!firebase.apps.length){
         firebase.initializeApp(firebaseConfig);
         };
 
-    this.referenceChatMessages = firebase.firestore().collection("messages");
+      
+      this.referenceChatMessages = firebase.firestore().collection("messages");
   }
+
+  async getMessages() {
+    let messages  = ""
+    try {
+      messages = await AsyncStorage.getItem("messages") || [];
+      this.setState({
+        messages: JSON.parse(messages)
+      })
+    } catch(error) {
+      console.log(error.message);
+    }
+  }
+
+  async saveMessages() {
+    try {
+      await AsyncStorage.setItem("messages", JSON.stringify(this.state.messages))
+    } catch(error) {
+      console.log(error.message);
+    }
+  }
+
+  async deleteMessages() {
+    try {
+      await AsyncStorage.removeItem("messages");
+    } catch(error) {
+      console.log(error.message)
+    }
+  }
+
+  renderInputToolbar(props) {
+    if(this.state.isConnected == false) {
+
+    } else {
+      return(
+        <InputToolbar
+          {...props}
+        />
+      )
+    }
+  }
+
   componentDidMount() {
-    this.referenceChatMessages = firebase.firestore().collection("messages");
     //Takes the name provided in the TextInput from Start.js and assigns it to a variable
     const name = this.props.route.params.name;
 
     //Use to set the name at top of app page
     this.props.navigation.setOptions({ title: name });
 
-    this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-      if(!user) {
-        await firebase.auth().signInAnonymously();
+    NetInfo.fetch().then((connection) => {
+      if(connection.isConnected) {
+        console.log(connection.type);
+        console.log(connection.isConnected);
+        this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+          if(!user) {
+            await firebase.auth().signInAnonymously();
+          }
+          this.setState({
+            uid: user.uid,
+            messages: [],
+            isConnected: true,
+          });
+    
+          this.unsubscribe = this.referenceChatMessages
+            .orderBy("createdAt", "desc")
+            .onSnapshot(this.onCollectionUpdate);
+        });
+      } else {
+        console.log(connection.type);
+        console.log("offline");
+        this.setState({
+          isConnected: false,
+        })
+        this.getMessages();
       }
-      this.setState({
-        uid: user.uid,
-        messages: [],
-      });
-
-
-      this.unsubscribe = this.referenceChatMessages
-        .orderBy("createdAt", "desc")
-        .onSnapshot(this.onCollectionUpdate);
-    });
+    })
+  
   }
 
   onCollectionUpdate = (querySnapshot) => {
@@ -100,7 +157,10 @@ export default class Chat extends Component {
     this.setState((previousState) => ({
       messages: GiftedChat.append(previousState.messages, messages),
     }),
-     () => { this.addMessages()}
+     () => { 
+      this.addMessages();
+      this.saveMessages();
+    }
     )
   }
 
@@ -170,6 +230,7 @@ export default class Chat extends Component {
           renderSystemMessage={this.renderSystemMessage.bind(this)}
           renderTime={this.renderTime.bind(this)}
           renderBubble={this.renderBubble.bind(this)}
+          renderInputToolbar={this.renderInputToolbar.bind(this)}
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
           user={{
@@ -190,4 +251,4 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
 })
-
+ 
